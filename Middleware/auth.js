@@ -11,7 +11,7 @@ const createJwt = (res,email) =>{
 
 const verifyJwt = async(req,res) =>{
     let token = req.cookies.token;
-    console.log(token);
+    //console.log(token);
 }
 
 module.exports = {createJwt,verifyJwt};
