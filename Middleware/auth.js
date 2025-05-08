@@ -1,17 +1,34 @@
 const jwt = require('jsonwebtoken');
+const {blackListedToken} = require('../Controller/userController');
 
-const createJwt = (res,email) =>{
-    const token = jwt.sign({email},process.env.JWT_Token,{expiresIn: "1d"});
-
-    res.cookie("token",token,{
-        //httpOnly : true,
-        maxAge: 24 * 60 * 60 * 1000
-    });
+const verifyJwt = (req,res,next) =>{
+    const token = req.headers["authorization"];
+    if(!token){
+        return res.status(401).send({ message: 'Access denied. No token provided' });
+    }
+    //console.log(blackListedToken);
+    if(blackListedToken.has(token)){
+        return res.status(400).send({ message: 'Invalid Token' });
+    }
+    try{
+        const decodeToken = jwt.verify(token, process.env.JWT_Token);
+        req.user = decodeToken.email;
+        //console.log(req.user,req.body);
+        next();
+    }
+    catch(error){
+        console.error('JWT error:', error.message);
+        res.status(400).send({ message: 'Invalid Token' });
+    }
 }
 
+<<<<<<< HEAD
 const verifyJwt = async(req,res) =>{
     let token = req.cookies.token;
     console.log(token);
 }
 
 module.exports = {createJwt,verifyJwt};
+=======
+module.exports = {verifyJwt};
+>>>>>>> 47a7e42 (tasks)

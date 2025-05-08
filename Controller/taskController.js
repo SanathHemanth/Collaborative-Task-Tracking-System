@@ -32,7 +32,11 @@ const taskComplete = async(req,res)=>{
     try{
         const id = req.params.id;
         const taskDetails = await Task.find({_id:id});
+<<<<<<< HEAD
         //console.log('hi',taskDetails);
+=======
+        console.log('hi',taskDetails);
+>>>>>>> 47a7e42 (tasks)
         if(!taskDetails){
             res.send(400).send({message:'Invalid ID'});
         }

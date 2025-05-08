@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../Models/user');
-const {createJwt,verifyJwt} = require('../Middleware/auth');
+// const {verifyJwt} = require('../Middleware/auth');
 const blackListedToken = new Set();
 const jwt = require('jsonwebtoken');
 
@@ -41,8 +41,8 @@ const loginUser = async(req,res) =>{
 
         const isMatch = await userDetails.matchPassword(password);
         if(isMatch){
-            createJwt(res,email);
-            return res.status(200).send({message: 'login successful'});
+            const token = jwt.sign({email},process.env.JWT_Token,{expiresIn: "1d"});
+            return res.status(200).send({token});
         }
         else{
             return res.status(401).send({message:'Invalid email or password'});
@@ -54,10 +54,10 @@ const loginUser = async(req,res) =>{
 }
 
 const logout = async(req,res) =>{
-    const token = req.cookies.token;
+    const token = req.headers["authorization"];
     if(token){
         blackListedToken.add(token);
-        // console.log(blackListedToken);
+        console.log(blackListedToken);
         res.clearCookie('token');
         return res.status(200).send({message:'Logout Successful'});
     }
@@ -65,13 +65,36 @@ const logout = async(req,res) =>{
 }
 
 const profile = async (req,res) =>{
-    const token = req.cookies.token;
-    if(token){
-        if(blackListedToken.has(token)){
-            return res.send(401).send('Invalid token');
-        }
-        verifyJwt(req,res);
+    console.log(req.user);
+    try{
+        const userDetails = await User.findOne({email: req.user});
+        //console.log(userDetails);
+        res.status(200).send({username: userDetails.username,
+        email : userDetails.email,
+        role : userDetails.role
+    });
+    }
+    catch(error){
+        console.log(error);
+        return res.status(400).send({message: error});
     }
 }
 
-module.exports = {registerUser,loginUser,logout,profile};
+const updateProfile = async (req,res) =>{
+    const {username,role} = req.body;
+    console.log(username,role);
+    try{
+        const userDetails = await User.findOne({email: req.user});
+        console.log(userDetails);
+        userDetails.username = username;
+        userDetails.role = role;
+        //console.log(userDetails);
+        const updatedUser = await userDetails.save();
+        return res.status(201).send({message: 'Profile Updated Successfully'});
+    }
+    catch{
+        return res.status(400).send({message: error});
+    }
+}
+
+module.exports = {registerUser,loginUser,logout,profile,updateProfile,blackListedToken};

@@ -4,6 +4,7 @@ const dbConnection = require('./util/database');
 const app = express();
 const port = 3000;
 const userRoute = require('./Routes/userRoutes');
+const taskRoute = require('./Routes/taskRoutes');
 require('dotenv').config();
 dbConnection();
 
@@ -23,7 +24,7 @@ app.get('/',(req,res)=>{
 })
 
 app.use('/user',userRoute);
-
+app.use('/task',taskRoute);
 app.listen(port,(err)=>{
     if(err){
         return console.log('Something bad happened', err);
