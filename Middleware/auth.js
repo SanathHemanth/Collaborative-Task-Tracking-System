@@ -21,14 +21,5 @@ const verifyJwt = (req,res,next) =>{
         res.status(400).send({ message: 'Invalid Token' });
     }
 }
-
-<<<<<<< HEAD
-const verifyJwt = async(req,res) =>{
-    let token = req.cookies.token;
-    console.log(token);
-}
-
 module.exports = {createJwt,verifyJwt};
-=======
-module.exports = {verifyJwt};
->>>>>>> 47a7e42 (tasks)
+
